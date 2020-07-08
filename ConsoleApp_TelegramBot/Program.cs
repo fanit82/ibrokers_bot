@@ -5,6 +5,7 @@ using System.Net;
 using ConsoleApp_TelegramBot.Ibrockers;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace ConsoleApp_TelegramBot
 {
@@ -93,7 +94,17 @@ namespace ConsoleApp_TelegramBot
                     await botClient.SendTextMessageAsync(e.Message.Chat, text: "Bot nhóm RichTeam");
                     break;
                 default:
-                    await botClient.SendTextMessageAsync(e.Message.Chat, text: "Lệnh không phù hợp!");
+                    string strMsg = e.Message.Text.ToLower();
+                    if (Regex.IsMatch(strMsg, "^/[sb{1}][1-9][0-9]*$"))
+	                {
+                        int intBetType = strMsg.Substring(1, 1).Equals("s") ? 0 : 1;
+                        int intAmount = Convert.ToInt32(strMsg.Substring(2, strMsg.Length - 2));
+                        _ = UserOder(e.Message.Chat.Id, PublicToken, intBetType, intAmount);
+	                }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(e.Message.Chat, text: "Lệnh không phù hợp!");
+                    }                    
                     break;
             }           
         }
@@ -102,8 +113,12 @@ namespace ConsoleApp_TelegramBot
             await botClient.SendTextMessageAsync(TlgUserID, strPayout);
         }
 
-
-
-
+        private static async Task UserOder(long TlgUserID, string PublicToken,int intBetType,int intAmount)
+        {
+            Task<string> strMsg = IbrokersProcess.BetProcessAsync(PublicToken, intBetType, intAmount);
+            string SendMSG = await strMsg;
+            await botClient.SendTextMessageAsync(TlgUserID, SendMSG);
+            //intBetType ==0? "Sell: ":"Buy: " + intAmount.ToString()
+        }
     }
 }

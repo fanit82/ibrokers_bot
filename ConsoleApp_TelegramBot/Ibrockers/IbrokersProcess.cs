@@ -65,10 +65,14 @@ namespace ConsoleApp_TelegramBot.Ibrockers
             {
                 //var PostContent = new StringContent(JsonConvert.SerializeObject(ObjPost), Encoding.UTF8, "application/json");
                 var ObjPost = new { Amount = BetAmount , BetType= BetType};
+                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + strToken);
                 var PostContent = new StringContent(JsonConvert.SerializeObject(ObjPost), Encoding.UTF8, "application/json");
-                HttpResponseMessage respose = await client.PostAsync(new Uri("https://api.ibrokers.io/api/Account/Login"), PostContent);
+                HttpResponseMessage respose = await client.PostAsync(new Uri("https://api.ibrokers.io/api/Account/AccountPlaceOrder"), PostContent);
                 if (respose.IsSuccessStatusCode)
                 {
+                    var JsonString =await  respose.Content.ReadAsStringAsync();
+                    ReturnOrderModel ReturnObj = JsonConvert.DeserializeObject<ReturnOrderModel>(JsonString);
+                    return ReturnObj.errorMessage;
                     ////var JsonString = await respose.Content.ReadAsStringAsync();
                     ////ResultBet BetResult  = JsonConvert.DeserializeObject<ResultBet>(JsonString);
                     ////return LoginTK.data.token;

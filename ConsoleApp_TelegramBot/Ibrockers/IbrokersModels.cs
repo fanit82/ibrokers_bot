@@ -39,4 +39,10 @@ namespace ConsoleApp_TelegramBot.Ibrockers
         public List<PriceModel> data { get; set; }
 
     }
+
+    public class ReturnOrderModel
+    {
+        public int errorCode { get; set; }
+        public string errorMessage { get; set; }
+    }
 }
