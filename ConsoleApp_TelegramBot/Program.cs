@@ -12,25 +12,28 @@ namespace ConsoleApp_TelegramBot
     {
         static List<long> ListUserSign = new List<long>();
         static ITelegramBotClient botClient;
-        static string PublicToken = string.Empty; //token de lay thong tin tu server. 
-        //private static readonly TelegramBotClient bot = new TelegramBotClient("1206806449:AAHb5mWsgev-vl0R0qmN6PWzQQO_k75QiLM");       
+        static string PublicToken = string.Empty; //token de lay thong tin tu server.         
         static async Task Main()
-        {
-            //var botClient = new TelegramBotClient("1206806449:AAHb5mWsgev-vl0R0qmN6PWzQQO_k75QiLM");
+        {   
+            //khoi tao thong tin bot telegram
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             botClient = new TelegramBotClient("1206806449:AAHb5mWsgev-vl0R0qmN6PWzQQO_k75QiLM"); //lay bot telegram.
-            botClient.OnMessage += BotClient_OnMessage;
-            botClient.StartReceiving();
-            //lay token.
+            botClient.OnMessage += BotClient_OnMessage; //dang ky su kien nhan tin tu user vào bot
+            botClient.StartReceiving();//
+
+            //lay token public de truy van tin hieu
             Task<string> strToken = IbrokersProcess.GetToken("D116771", "123456789");
             PublicToken = await strToken;
+
+            //lay và gởi tin hieu cho user.
+            string strPayout = string.Empty;
+            List<PriceModel> ListPayout = null;
             while (true)
             {
-                List<PriceModel> ListPayout = await IbrokersProcess.GetPriceCandlesticks(PublicToken);
-                string strPayout = string.Empty;
+                ListPayout = await IbrokersProcess.GetPriceCandlesticks(PublicToken);
+                strPayout = string.Empty;
                 //char.ConvertFromUtf32(0x1F534) + char.ConvertFromUtf32(0x1F7E2) + char.ConvertFromUtf32(0x1F534);
-
                 foreach (PriceModel item in ListPayout)
                 {
                     if (item.close > item.open) //Buy
@@ -47,13 +50,12 @@ namespace ConsoleApp_TelegramBot
                     foreach (long UserChatID in ListUserSign)
                     {
                         SendPayout(UserChatID, strPayout);
-                    }                    
-                    await Task.Delay(60 * 1000);
+                    }
+                    DateTime CurenTime = DateTime.Now;                    
+                    await Task.Delay((61- CurenTime.Second) * 1000);
                 }
-
             }
             //Thread.Sleep(int.MaxValue);
-
             //Console.WriteLine(strABC);
 
             //Console.ReadLine();
@@ -86,6 +88,9 @@ namespace ConsoleApp_TelegramBot
                     ListUserSign.RemoveAt(ListUserSign.FindIndex(x=>x== (e.Message.Chat.Id)));
                     Console.WriteLine("User " + e.Message.Chat.Id.ToString() + " bỏ nhận tín hiệu");
                     await botClient.SendTextMessageAsync(e.Message.Chat, text: "Bạn bỏ nhận tín hiệu");
+                    break;
+                case "/start":
+                    await botClient.SendTextMessageAsync(e.Message.Chat, text: "Bot nhóm RichTeam");
                     break;
                 default:
                     await botClient.SendTextMessageAsync(e.Message.Chat, text: "Lệnh không phù hợp!");
