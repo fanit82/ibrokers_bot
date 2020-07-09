@@ -15,7 +15,8 @@ namespace ConsoleApp_TelegramBot
         static ITelegramBotClient botClient;
         static string PublicToken = string.Empty; //token de lay thong tin tu server.         
         static async Task Main()
-        {   
+        {  
+            
             //khoi tao thong tin bot telegram
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -115,9 +116,19 @@ namespace ConsoleApp_TelegramBot
 
         private static async Task UserOder(long TlgUserID, string PublicToken,int intBetType,int intAmount)
         {
-            Task<string> strMsg = IbrokersProcess.BetProcessAsync(PublicToken, intBetType, intAmount);
-            string SendMSG = await strMsg;
-            await botClient.SendTextMessageAsync(TlgUserID, SendMSG);
+            ReturnOrderModel ObjO = await IbrokersProcess.BetProcessAsync(PublicToken, intBetType, intAmount);
+            if (ObjO.errorCode==0) //Order thành công.
+            {
+                string strMsg = intBetType == 0 ? "Sell: " : "Buy: ";
+                strMsg = strMsg + intAmount.ToString();
+                await botClient.SendTextMessageAsync(TlgUserID, strMsg); //send cho user biêt.
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(TlgUserID, ObjO.errorMessage);
+            }
+            //string SendMSG = await strMsg;
+            
             //intBetType ==0? "Sell: ":"Buy: " + intAmount.ToString()
         }
     }

@@ -40,9 +40,27 @@ namespace ConsoleApp_TelegramBot.Ibrockers
 
     }
 
+
+
+    /// <summary>
+    /// Model chứa thông tin trả về khi Order.
+    /// </summary>
+    public class DataOrderModel
+    {
+        public double currentBalance { get; set; }
+        public double liveProfit { get; set; }
+        public double userProfit { get; set; }
+        public double totalBuy { get; set; }
+        public double totalSell { get; set; }
+        public bool isTraining { get; set; }
+
+    }
+
     public class ReturnOrderModel
     {
+        public DataOrderModel data { get; set; }
         public int errorCode { get; set; }
         public string errorMessage { get; set; }
+
     }
 }

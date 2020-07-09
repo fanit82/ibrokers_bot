@@ -58,7 +58,7 @@ namespace ConsoleApp_TelegramBot.Ibrockers
             }
         }
 
-        public static async Task<String> BetProcessAsync(String strToken, int BetType, int BetAmount)
+        public static async Task<ReturnOrderModel> BetProcessAsync(String strToken, int BetType, int BetAmount)
         {
             var ResultBet = new {errorCode = 0,errorMessage = "" };
             using (var client = new HttpClient())
@@ -68,20 +68,25 @@ namespace ConsoleApp_TelegramBot.Ibrockers
                 client.DefaultRequestHeaders.Add("Authorization", "Bearer " + strToken);
                 var PostContent = new StringContent(JsonConvert.SerializeObject(ObjPost), Encoding.UTF8, "application/json");
                 HttpResponseMessage respose = await client.PostAsync(new Uri("https://api.ibrokers.io/api/Account/AccountPlaceOrder"), PostContent);
-                if (respose.IsSuccessStatusCode)
-                {
-                    var JsonString =await  respose.Content.ReadAsStringAsync();
-                    ReturnOrderModel ReturnObj = JsonConvert.DeserializeObject<ReturnOrderModel>(JsonString);
-                    return ReturnObj.errorMessage;
-                    ////var JsonString = await respose.Content.ReadAsStringAsync();
-                    ////ResultBet BetResult  = JsonConvert.DeserializeObject<ResultBet>(JsonString);
-                    ////return LoginTK.data.token;
-                    ////response = result.StatusCode.ToString();
-                }
-                else
-                {
-                    throw new Exception(respose.ReasonPhrase);
-                }
+
+                var JsonString = await respose.Content.ReadAsStringAsync();
+                ReturnOrderModel ReturnObj = JsonConvert.DeserializeObject<ReturnOrderModel>(JsonString);
+                return ReturnObj;
+                //if (respose.IsSuccessStatusCode)
+                //{
+                //    var JsonString =await  respose.Content.ReadAsStringAsync();
+                //    ReturnOrderModel ReturnObj = JsonConvert.DeserializeObject<ReturnOrderModel>(JsonString);
+                //    return ReturnObj;
+                //    ////var JsonString = await respose.Content.ReadAsStringAsync();
+                //    ////ResultBet BetResult  = JsonConvert.DeserializeObject<ResultBet>(JsonString);
+                //    ////return LoginTK.data.token;
+                //    ////response = result.StatusCode.ToString();
+                //}
+                //else
+                //{
+
+                //    //throw new Exception(respose.ReasonPhrase);
+                //}
             }
         }
     }
