@@ -63,4 +63,11 @@ namespace ConsoleApp_TelegramBot.Ibrockers
         public string errorMessage { get; set; }
 
     }
+
+    public class LoginUserModel
+    {
+        public long TelegramID { get; set; }
+        public string PrivateToken { get; set; }
+
+    }
 }

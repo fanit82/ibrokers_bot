@@ -6,6 +6,9 @@ using ConsoleApp_TelegramBot.Ibrockers;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace ConsoleApp_TelegramBot
 {
@@ -102,6 +105,11 @@ namespace ConsoleApp_TelegramBot
                         int intAmount = Convert.ToInt32(strMsg.Substring(2, strMsg.Length - 2));
                         _ = UserOder(e.Message.Chat.Id, PublicToken, intBetType, intAmount);
 	                }
+                    if (Regex.IsMatch(strMsg, @"^/login{1}\s[ld{1}].\s.$"))
+                    {
+
+                    }
+
                     else
                     {
                         await botClient.SendTextMessageAsync(e.Message.Chat, text: "Lệnh không phù hợp!");
@@ -130,6 +138,31 @@ namespace ConsoleApp_TelegramBot
             //string SendMSG = await strMsg;
             
             //intBetType ==0? "Sell: ":"Buy: " + intAmount.ToString()
+        }
+
+
+        /// <summary>
+        /// Ghi thông tin các telegramID đa đang ky hthong.
+        /// </summary>
+        /// <param name="ListUserLogin"></param>
+        private static void WriteLoginUserTofile(List<LoginUserModel> ListUserLogin)
+        {
+            JArray JArrayUser = new JArray();
+            foreach (var item in ListUserLogin)
+            {
+                JArrayUser.Add(item);
+            }
+            StreamWriter file = File.CreateText(@"/customer.json");
+            using (JsonTextWriter writer = new JsonTextWriter(file))
+            {
+                //Save JArray of customers
+                JArrayUser.WriteTo(writer);
+            }
+        }
+        private static List<LoginUserModel> ReadLoginUserFromFile()
+        {
+            var json = File.ReadAllText(@"/customer.json");
+            return JsonConvert.DeserializeObject<List<LoginUserModel>>(json);            
         }
     }
 }
